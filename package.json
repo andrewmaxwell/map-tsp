@@ -1,0 +1,19 @@
+{
+  "name": "map-tsp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "webpack-dev-server --progress --colors --content-base public/",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "andrew.maxwell@daugherty.com",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^3.2.2",
+    "eslint-loader": "^1.5.0"
+  },
+  "dependencies": {
+    "jquery": "^3.1.0"
+  }
+}
