@@ -23,6 +23,8 @@ const solver = new SimulatedAnnealingSolver({
 	generateNeighbor: utils.reverseRandomSlice
 });
 
+console.log('NEXT TO DO, DITCH NEO4J');
+
 neo4j.getAllRelationships().then(edges => {
 
 	// get all nodes, index them and keep the unique ones
