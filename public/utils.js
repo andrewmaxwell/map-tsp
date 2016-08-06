@@ -19,8 +19,8 @@ module.exports = {
 		let closestNode;
 		let minDist = Infinity;
 		nodes.forEach(node => {
-			let dx = node.screenX - x;
-			let dy = node.screenY - y;
+			let dx = node.x - x;
+			let dy = node.y - y;
 			let sqDist = dx * dx + dy * dy;
 			if (sqDist < minDist){
 				minDist = sqDist;

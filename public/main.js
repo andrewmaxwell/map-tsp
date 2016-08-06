@@ -1,17 +1,17 @@
-const $ = require('jquery');
+console.clear();
+
+const screenWidth = 2000;
+
 const MapRenderer = require('./mapRenderer');
 const SimulatedAnnealingSolver = require('./solver');
 const utils = require('./utils');
-const Neo4jConnection = require('./neo4j');
 const findPath = require('./findPath');
+const mapData = require('json!./map.json');
 
-const width = 2000;
-const neo4j = new Neo4jConnection('http://localhost:7474/', 'neo4j:4dm1n');
+const canvas = document.createElement('canvas');
+document.body.appendChild(canvas);
 
-const nodes = [];
-
-const canvas = $('#C');
-const mapRenderer = new MapRenderer(canvas[0]);
+const mapRenderer = new MapRenderer(canvas);
 
 const solver = new SimulatedAnnealingSolver({
 	initialTemperature: 1,
@@ -23,44 +23,32 @@ const solver = new SimulatedAnnealingSolver({
 	generateNeighbor: utils.reverseRandomSlice
 });
 
-console.log('NEXT TO DO, DITCH NEO4J');
+const nodes = mapData.nodes.map((node, i) => ({
+	id: i,
+	x: node[0] / mapData.width * screenWidth,
+	y: node[1] / mapData.width * screenWidth,
+	neighbors: []
+}));
 
-neo4j.getAllRelationships().then(edges => {
-
-	// get all nodes, index them and keep the unique ones
-	const nodeIndex = {};
-	[].concat.apply([], edges).forEach(node => {
-		if (!nodeIndex[node.id]){
-			nodeIndex[node.id] = node;
-			nodes.push(node);
-		}
-	});
-
-	// scale nodes from 0 - width
-	const bb = utils.boundingBox(nodes);
-	const mult = width / (bb.max.x - bb.min.x);
-	const height = (bb.max.y - bb.min.y) * mult;
-	nodes.forEach(node => {
-		node.screenX = (node.x - bb.min.x) * mult;
-		node.screenY = (bb.max.y - node.y) * mult;
-		node.neighbors = [];
-	});
-
-	// store all nieghbors with cost
-	edges.forEach(edge => {
-		const a = edge[0] = nodeIndex[edge[0].id];
-		const b = edge[1] = nodeIndex[edge[1].id];
-		const cost = utils.distance(a, b);
+mapData.roads.forEach(road => {
+	for (let i = 0; i < road.length - 1; i++){
+		let a = nodes[road[i]];
+		let b = nodes[road[i + 1]];
+		let cost = utils.distance(a, b);
 		a.neighbors.push({cost, node: b});
 		b.neighbors.push({cost, node: a});
-	});
-
-	mapRenderer.update({width, height, edges});
-}).catch(err => {
-	$('#error').text(err.readyState ? JSON.stringify(err) : 'Neo4j not found!');
+	}
 });
 
-canvas.on('click', e => {
+mapRenderer.update({
+	width: screenWidth,
+	height: Math.floor(mapData.height / mapData.width * screenWidth),
+	roads: mapData.roads.map(road =>
+		road.map(id => nodes[id])
+	)
+});
+
+canvas.onclick = e => {
 	const closest = utils.closestNode(nodes, e.offsetX, e.offsetY);
 	closest.selected = !closest.selected;
 
@@ -76,4 +64,4 @@ canvas.on('click', e => {
 	}
 
 	mapRenderer.update({selected: solution, path: solutionPath});
-});
+};

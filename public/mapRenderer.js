@@ -16,16 +16,24 @@ class MapRenderer {
 		T.lineWidth = 0.25;
 		T.strokeStyle = 'black';
 		T.beginPath();
-		(this.edges || []).forEach(edge => {
-			T.moveTo(edge[0].screenX, edge[0].screenY);
-			T.lineTo(edge[1].screenX, edge[1].screenY);
+
+		// (this.edges || []).forEach(edge => {
+		// 	T.moveTo(edge[0].x, edge[0].y);
+		// 	T.lineTo(edge[1].x, edge[1].y);
+		// });
+
+		// console.log('mapRenderer', this);
+
+		(this.roads || []).forEach(road => {
+			T.moveTo(road[0].x, road[0].y);
+			road.forEach(node => T.lineTo(node.x, node.y));
 		});
 		T.stroke();
-
+		//
 		T.fillStyle = 'blue';
 		T.beginPath();
 		(this.selected || []).forEach(n => {
-			T.rect(n.screenX - 2.5, n.screenY - 2.5, 5, 5);
+			T.rect(n.x - 2.5, n.y - 2.5, 5, 5);
 		});
 		T.fill();
 
@@ -33,7 +41,7 @@ class MapRenderer {
 		T.strokeStyle = 'red';
 		T.beginPath();
 		(this.path || []).forEach(n =>
-			T.lineTo(n.screenX, n.screenY)
+			T.lineTo(n.x, n.y)
 		);
 		T.stroke();
 
