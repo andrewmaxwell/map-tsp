@@ -1,49 +1,70 @@
 class MapRenderer {
 	constructor(canvas){
 		this.canvas = canvas;
+		this.context = canvas.getContext('2d');
 	}
 	update(opts){
 		Object.keys(opts || {}).forEach(key => this[key] = opts[key]);
+
+		if (opts.width) this.canvas.width = opts.width;
+		if (opts.height) this.canvas.height = opts.height;
+
 		this.draw();
 	}
 	draw(){
 		if (!this.width || !this.height) return;
 
-		const T = this.canvas.getContext('2d');
-		this.canvas.width = this.width;
-		this.canvas.height = this.height;
+		const T = this.context;
 
-		T.lineWidth = 0.25;
-		T.strokeStyle = 'black';
-		T.beginPath();
+		T.clearRect(0, 0, this.width, this.height);
 
-		// (this.edges || []).forEach(edge => {
-		// 	T.moveTo(edge[0].x, edge[0].y);
-		// 	T.lineTo(edge[1].x, edge[1].y);
-		// });
+		if (this.nodes){
+			const paths = [];
 
-		// console.log('mapRenderer', this);
+			T.lineWidth = 0.5;
+			T.strokeStyle = 'green';
+			T.beginPath();
+			this.nodes.forEach(n => {
+				if (n.prev){
+					T.moveTo(n.x, n.y);
+					T.lineTo(n.prev.x, n.prev.y);
+				}
+				if (n.paths){
+					Object.keys(n.paths).forEach(id => {
+						paths.push(n.paths[id].path);
+					});
+				}
+			});
+			T.stroke();
 
-		(this.roads || []).forEach(road => {
-			T.moveTo(road[0].x, road[0].y);
-			road.forEach(node => T.lineTo(node.x, node.y));
-		});
-		T.stroke();
-		//
-		T.fillStyle = 'blue';
-		T.beginPath();
-		(this.selected || []).forEach(n => {
-			T.rect(n.x - 2.5, n.y - 2.5, 5, 5);
-		});
-		T.fill();
+			if (paths.length){
+				T.lineWidth = 2;
+				T.strokeStyle = 'blue';
+				T.beginPath();
+				paths.forEach(path => {
+					T.moveTo(path[0].x, path[0].y);
+					path.forEach(n => T.lineTo(n.x, n.y));
+				});
+				T.stroke();
+			}
+		}
 
-		T.lineWidth = 1;
-		T.strokeStyle = 'red';
-		T.beginPath();
-		(this.path || []).forEach(n =>
-			T.lineTo(n.x, n.y)
-		);
-		T.stroke();
+		if (this.selected){
+			T.fillStyle = 'blue';
+			T.beginPath();
+			this.selected.forEach(n => {
+				T.rect(n.x - 2.5, n.y - 2.5, 5, 5);
+			});
+			T.fill();
+		}
+
+		// if (this.path){
+		// 	T.lineWidth = 1;
+		// 	T.strokeStyle = 'red';
+		// 	T.beginPath();
+		// 	this.path.forEach(n => T.lineTo(n.x, n.y));
+		// 	T.stroke();
+		// }
 
 	}
 }

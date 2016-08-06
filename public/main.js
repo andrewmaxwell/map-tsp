@@ -4,13 +4,13 @@ const screenWidth = 2000;
 
 const MapRenderer = require('./mapRenderer');
 const SimulatedAnnealingSolver = require('./solver');
+const PathFinder = require('./pathFinder');
+
+const drawMap = require('./drawMap');
 const utils = require('./utils');
-const findPath = require('./findPath');
 const mapData = require('json!./map.json');
 
-const canvas = document.createElement('canvas');
-document.body.appendChild(canvas);
-
+const canvas = document.getElementById('mainCanvas');
 const mapRenderer = new MapRenderer(canvas);
 
 const solver = new SimulatedAnnealingSolver({
@@ -40,28 +40,61 @@ mapData.roads.forEach(road => {
 	}
 });
 
-mapRenderer.update({
+const height = Math.floor(mapData.height / mapData.width * screenWidth);
+
+drawMap({
+	canvas: document.getElementById('mapCanvas'),
 	width: screenWidth,
-	height: Math.floor(mapData.height / mapData.width * screenWidth),
-	roads: mapData.roads.map(road =>
-		road.map(id => nodes[id])
-	)
+	height,
+	roads: mapData.roads.map(road => road.map(id => nodes[id]))
 });
 
+mapRenderer.update({
+	canvas: document.getElementById('mainCanvas'),
+	width: screenWidth,
+	height
+});
+
+let looping = false, pathFinder, selected;
+const FPS = 30;
+
 canvas.onclick = e => {
+
 	const closest = utils.closestNode(nodes, e.offsetX, e.offsetY);
 	closest.selected = !closest.selected;
 
-	const solution = findPath(nodes, solver);
+	selected = nodes.filter(n => n.selected);
+	mapRenderer.update({selected});
 
-	const solutionPath = [];
-	if (solution.length > 1){
-		solution.forEach((node, i) => {
-			const n = (i + 1) % solution.length;
-			const subPath = node.paths[solution[n].id].path;
-			solutionPath.push.apply(solutionPath, subPath[0] != node ? subPath.reverse() : subPath);
-		});
+	if (selected.length > 1){
+		pathFinder = new PathFinder(nodes, selected);
+		console.log(pathFinder);
+		looping = true;
 	}
 
-	mapRenderer.update({selected: solution, path: solutionPath});
+	// const solution = findPath(nodes, nodes.filter(n => n.selected), solver);
+	//
+	// const solutionPath = [];
+	// if (solution.length > 1){
+	// 	solution.forEach((node, i) => {
+	// 		const n = (i + 1) % solution.length;
+	// 		const subPath = node.paths[solution[n].id].path;
+	// 		solutionPath.push.apply(solutionPath, subPath[0] != node ? subPath.reverse() : subPath);
+	// 	});
+	// }
+	//
+	// mapRenderer.update({selected: solution, path: solutionPath});
+
+
 };
+
+const loop = () => {
+	requestAnimationFrame(loop);
+	if (looping){
+		for (let i = 0; i < 100; i++) pathFinder.iterate();
+		mapRenderer.update({nodes});
+	}
+};
+loop();
+
+window.onerror = () => looping = false;
