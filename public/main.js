@@ -68,7 +68,6 @@ canvas.onclick = e => {
 
 	if (selected.length > 1){
 		pathFinder = new PathFinder(nodes, selected);
-		console.log(pathFinder);
 		looping = true;
 	}
 
@@ -91,7 +90,9 @@ canvas.onclick = e => {
 const loop = () => {
 	requestAnimationFrame(loop);
 	if (looping){
-		for (let i = 0; i < 100; i++) pathFinder.iterate();
+		for (let i = 0; i < 100; i++){
+			if (!pathFinder.iterate()) looping = false;
+		}
 		mapRenderer.update({nodes});
 	}
 };

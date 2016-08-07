@@ -9,15 +9,35 @@ class IterativeDijkstra {
 			delete n.prev;
 		});
 
+		this.heuristic = node => {
+			let dx = node.x - this.destAverage.x;
+			let dy = node.y - this.destAverage.y;
+			return node.totalDist + Math.sqrt(dx * dx + dy * dy);
+		};
+
 		start.totalDist = 0;
 		this.queue = [start];
+
+		this.updateFScores();
+	}
+	updateFScores(){
+		const num = this.destinations.length;
+		let sumX = 0, sumY = 0;
+		for (let i = 0; i < num; i++){
+			sumX += this.destinations[i].x;
+			sumY += this.destinations[i].y;
+		}
+		this.destAverage = {x: sumX / num, y: sumY / num};
+		this.queue.forEach(node => {
+			this.fScore = this.heuristic(node);
+		});
 	}
 	iterate(){
 		if (!this.destinations.length || !this.queue.length) return false;
 
 		let currentIndex = 0;
-		for (let i = 1; i < this.queue.length; i++){
-			if (this.queue[i].totalDist < this.queue[currentIndex].totalDist){
+		for (let i = 0; i < this.queue.length; i++){
+			if (this.queue[i].fScore < this.queue[currentIndex].fScore){
 				currentIndex = i;
 			}
 		}
@@ -28,8 +48,9 @@ class IterativeDijkstra {
 
 		const destinationIndex = this.destinations.indexOf(current);
 		if (destinationIndex != -1){
+			if (this.destinations.length == 1) return false;
 			this.destinations.splice(destinationIndex, 1);
-			if (!this.destinations.length) return 0;
+			this.updateFScores();
 		}
 
 		for (let i = 0; i < current.neighbors.length; i++){
@@ -47,6 +68,7 @@ class IterativeDijkstra {
 
 			neighbor.prev = current;
 			neighbor.totalDist = tentativeDist;
+			neighbor.fScore = this.heuristic(neighbor);
 		}
 
 		return true;
@@ -87,6 +109,10 @@ class IterativePathFinder {
 				n1.paths[n2.id] = {path, dist, to: n2};
 				n2.paths[n1.id] = {path, dist, to: n1};
 			}
+
+			this.nodes.forEach(n => {
+				delete n.prev;
+			});
 
 			this.currentIndex++;
 			this.dijkstra = false;
