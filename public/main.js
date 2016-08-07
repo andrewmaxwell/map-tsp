@@ -1,17 +1,14 @@
 console.clear();
 
 const screenWidth = 2000;
+const dijstraIterationsPerFrame = 100;
 
-const MapRenderer = require('./mapRenderer');
+const OverlayRenderer = require('./overlayRenderer');
 const SimulatedAnnealingSolver = require('./solver');
 const PathFinder = require('./pathFinder');
-
 const drawMap = require('./drawMap');
 const utils = require('./utils');
 const mapData = require('json!./map.json');
-
-const canvas = document.getElementById('mainCanvas');
-const mapRenderer = new MapRenderer(canvas);
 
 const solver = new SimulatedAnnealingSolver({
 	initialTemperature: 1,
@@ -22,6 +19,9 @@ const solver = new SimulatedAnnealingSolver({
 	}, 0),
 	generateNeighbor: utils.reverseRandomSlice
 });
+
+
+
 
 const nodes = mapData.nodes.map((node, i) => ({
 	id: i,
@@ -42,18 +42,12 @@ mapData.roads.forEach(road => {
 
 const height = Math.floor(mapData.height / mapData.width * screenWidth);
 
-drawMap({
-	canvas: document.getElementById('mapCanvas'),
-	width: screenWidth,
-	height,
-	roads: mapData.roads.map(road => road.map(id => nodes[id]))
-});
+drawMap(document.getElementById('mapCanvas'), screenWidth, height,
+	mapData.roads.map(road => road.map(id => nodes[id]))
+);
 
-mapRenderer.update({
-	canvas: document.getElementById('mainCanvas'),
-	width: screenWidth,
-	height
-});
+const canvas = document.getElementById('mainCanvas');
+const overlayRenderer = new OverlayRenderer(canvas, screenWidth, height);
 
 let looping = false, pathFinder, selected;
 const FPS = 30;
@@ -64,36 +58,21 @@ canvas.onclick = e => {
 	closest.selected = !closest.selected;
 
 	selected = nodes.filter(n => n.selected);
-	mapRenderer.update({selected});
+	overlayRenderer.draw({selected, nodes});
 
 	if (selected.length > 1){
 		pathFinder = new PathFinder(nodes, selected);
 		looping = true;
 	}
-
-	// const solution = findPath(nodes, nodes.filter(n => n.selected), solver);
-	//
-	// const solutionPath = [];
-	// if (solution.length > 1){
-	// 	solution.forEach((node, i) => {
-	// 		const n = (i + 1) % solution.length;
-	// 		const subPath = node.paths[solution[n].id].path;
-	// 		solutionPath.push.apply(solutionPath, subPath[0] != node ? subPath.reverse() : subPath);
-	// 	});
-	// }
-	//
-	// mapRenderer.update({selected: solution, path: solutionPath});
-
-
 };
 
 const loop = () => {
 	requestAnimationFrame(loop);
 	if (looping){
-		for (let i = 0; i < 100; i++){
+		for (let i = 0; i < dijstraIterationsPerFrame; i++){
 			if (!pathFinder.iterate()) looping = false;
 		}
-		mapRenderer.update({nodes});
+		overlayRenderer.draw();
 	}
 };
 loop();

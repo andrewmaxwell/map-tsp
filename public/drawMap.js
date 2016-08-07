@@ -1,11 +1,11 @@
-module.exports = opts => {
-	opts.canvas.width = opts.width;
-	opts.canvas.height = opts.height;
+module.exports = (canvas, width, height, roads) => {
+	canvas.width = width;
+	canvas.height = height;
 
-	const T = opts.canvas.getContext('2d');
+	const T = canvas.getContext('2d');
 	T.lineWidth = 0.25;
 	T.beginPath();
-	opts.roads.forEach(road => {
+	roads.forEach(road => {
 		T.moveTo(road[0].x, road[0].y);
 		road.forEach(node => T.lineTo(node.x, node.y));
 	});
