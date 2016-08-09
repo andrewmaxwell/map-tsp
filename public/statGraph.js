@@ -1,4 +1,4 @@
-class StatCanvas {
+class StatGraph {
 	constructor(canvas, width, height){
 		this.canvas = canvas;
 		this.context = this.canvas.getContext('2d');
@@ -14,8 +14,9 @@ class StatCanvas {
 				opts.data.push(val);
 			}
 		};
-		this.reset();
+
 		this.graphs.push(opts);
+		this.reset();
 		return api;
 	}
 	reset(){
@@ -24,6 +25,7 @@ class StatCanvas {
 			type.max = -Infinity;
 			type.data = [];
 		});
+		this.draw();
 	}
 	draw(){
 		const T = this.context;
@@ -49,4 +51,4 @@ class StatCanvas {
 	}
 }
 
-module.exports = StatCanvas;
+module.exports = StatGraph;

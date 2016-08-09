@@ -1,3 +1,7 @@
+Array.prototype.unique = function(){
+	return Array.from(new Set(this));
+};
+
 module.exports = {
 	distance: (a, b) => {
 		const dx = a.x - b.x;

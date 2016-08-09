@@ -31,22 +31,19 @@ class MapRenderer {
 		}
 
 		if (this.selected){
-
-			// T.lineWidth = 0.5;
-			// T.strokeStyle = 'blue';
-			// T.beginPath();
-			// for (let i = 1; i < this.selected.length; i++){
-			// 	let s = this.selected[i];
-			// 	for (let j = 0; j < i; j++){
-			// 		let id = this.selected[j].id;
-			// 		let path = s.paths && s.paths[id] && s.paths[id].path;
-			// 		if (path){
-			// 			T.moveTo(path[0].x, path[0].y);
-			// 			path.forEach(n => T.lineTo(n.x, n.y));
-			// 		}
-			// 	}
-			// }
-			// T.stroke();
+			T.lineWidth = 0.5;
+			T.strokeStyle = 'blue';
+			T.beginPath();
+			this.selected.forEach(s => {
+				this.selected.forEach(t => {
+					let path = s.paths && s.paths[t.id] && s.paths[t.id].path;
+					if (path){
+						T.moveTo(path[0].x, path[0].y);
+						path.forEach(n => T.lineTo(n.x, n.y));
+					}
+				});
+			});
+			T.stroke();
 
 			T.fillStyle = 'red';
 			T.beginPath();

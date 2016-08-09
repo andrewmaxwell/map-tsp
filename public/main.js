@@ -1,82 +1,68 @@
 console.clear();
 
 const screenWidth = window.top.innerWidth;
-const dijstraIterationsPerFrame = 100;
+const pathFinderIterationsPerFrame = 100;
 const annealingIterationsPerFrame = 100;
-const initialNumPts = 30;
-const statCanvasHeight = 200;
+const initialNumPts = 10;
 const initialTemperature = 1e5;
-const coolingFactor = 1 - 1 / 10000;
+const coolingFactor = 1 - 1 / 1000;
+const statCanvasHeight = 100;
 
 const OverlayRenderer = require('./overlayRenderer');
 const SimulatedAnnealingSolver = require('./solver');
 const PathFinder = require('./pathFinder');
-const StatCanvas = require('./statCanvas');
+const StatGraph = require('./statGraph');
 const drawMap = require('./drawMap');
 const utils = require('./utils');
+const processNodes = require('./processNodes');
 const mapData = require('json!./map.json');
+
+window.top.mapData = mapData;
+
+const nodes = processNodes(mapData, screenWidth);
 
 const solver = new SimulatedAnnealingSolver({
 	initialTemperature,
 	coolingFactor,
+	generateNeighbor: utils.reverseRandomSlice,
 	getCost: path => path.reduce((sum, pt, i, path) =>  // returns length of path
 		sum + pt.paths[path[(i + 1) % path.length].id].cost
-	, 0),
-	generateNeighbor: utils.reverseRandomSlice
+	, 0)
 });
 
-const nodes = mapData.nodes.map((node, i) => ({
-	id: i,
-	x: node[0] / mapData.width * screenWidth,
-	y: node[1] / mapData.width * screenWidth,
-	neighbors: []
-}));
+const scaledMapHeight = Math.floor(mapData.height / mapData.width * screenWidth);
+const overlayCanvas = document.getElementById('mainCanvas');
+const overlayRenderer = new OverlayRenderer(overlayCanvas, screenWidth, scaledMapHeight);
+drawMap(document.getElementById('mapCanvas'), screenWidth, scaledMapHeight, mapData.roads);
 
-mapData.roads.forEach(road => {
-	for (let i = 0; i < road.length - 1; i++){
-		let a = nodes[road[i]];
-		let b = nodes[road[i + 1]];
-		let cost = utils.distance(a, b);
-		a.neighbors.push({cost, node: b});
-		b.neighbors.push({cost, node: a});
-	}
-});
+const stats = new StatGraph(document.getElementById('statCanvas'), screenWidth, statCanvasHeight);
+const annealingGraph = stats.addGraph({color: 'red'});
+const temperatureGraph = stats.addGraph({color: 'green'});
 
-const height = Math.floor(mapData.height / mapData.width * screenWidth);
-const canvas = document.getElementById('mainCanvas');
-const overlayRenderer = new OverlayRenderer(canvas, screenWidth, height);
 
-const statCanvas = new StatCanvas(document.getElementById('statCanvas'), screenWidth, statCanvasHeight);
-const annealingGraph = statCanvas.addGraph({color: 'red'});
-const temperatureGraph = statCanvas.addGraph({color: 'green'});
+let looping = false, pathFinder, selected = [], pathFinding = true;
 
-drawMap(document.getElementById('mapCanvas'), screenWidth, height,
-	mapData.roads.map(road => road.map(id => nodes[id]))
-);
-
-let looping = false, pathFinder, selected = [], state = 0;
-
-canvas.onclick = e => {
+overlayCanvas.onclick = e => {
 	const closest = utils.closestNode(nodes, e.offsetX, e.offsetY);
 	closest.selected = !closest.selected;
 	initSolve();
 };
 
 const initSolve = () => {
-	selected = nodes.filter(n => n.selected);
+	window.top.selected = selected = nodes.filter(n => n.selected);
 	overlayRenderer.draw({selected, nodes, solver});
 
-	if (selected.length > 1){
-		statCanvas.reset();
-		pathFinder = new PathFinder(nodes, selected);
-		delete solver.currentState; // just so it's not drawn
-		looping = true;
-		state = 0;
-	}
+	pathFinding = true;
+	delete solver.currentState; // just so it's not drawn
+
+	pathFinder = new PathFinder(nodes, selected);
+	looping = true;
+	stats.reset();
+	overlayRenderer.draw();
 };
 
 for (let i = 0; i < initialNumPts; i++){
-	nodes[Math.floor(Math.random() * nodes.length)].selected = true;
+	nodes[Math.floor((i + 0.5) / initialNumPts * nodes.length)].selected = true;
 }
 initSolve();
 
@@ -84,17 +70,17 @@ const loop = () => {
 	requestAnimationFrame(loop);
 	if (looping){
 
-		if (state == 0){
-			for (let i = 0; i < dijstraIterationsPerFrame; i++){
+		if (pathFinding){
+			for (let i = 0; i < pathFinderIterationsPerFrame; i++){
 				if (!pathFinder.iterate()){
-					if (selected.length > 3){
+					if (selected.length > 2){
 						solver.init(selected);
-						state = 1;
+						pathFinding = false;
 					} else looping = false;
 					break;
 				}
 			}
-		} else if (state == 1){
+		} else {
 			for (let i = 0; i < annealingIterationsPerFrame; i++){
 				if (!solver.iterate()){
 					looping = false;
@@ -104,10 +90,20 @@ const loop = () => {
 			annealingGraph.push(solver.currentCost);
 			temperatureGraph.push(solver.temperature);
 		}
+
 		overlayRenderer.draw();
-		statCanvas.draw();
+		stats.draw();
 	}
 };
+
 loop();
+
+window.onkeypress = e => {
+	if (e.code == 'Space'){
+		e.preventDefault();
+		nodes.forEach(n => delete n.selected);
+		initSolve();
+	}
+};
 
 window.onerror = () => looping = false;

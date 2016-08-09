@@ -9,38 +9,36 @@ class IterativePathFinder {
 	}
 	iterate(){
 
-		if (this.currentIndex > this.destinations.length - 2) return false;
+		const currentNode = this.destinations[this.currentIndex];
+		if (!currentNode) return false;
 
-		this.dijkstra = this.dijkstra || new IterativeAStarSearch(
-			this.nodes,
-			this.destinations[this.currentIndex],
-			this.destinations.slice(this.currentIndex + 1)
-		);
+		this.aStar = this.aStar ||
+			new IterativeAStarSearch(this.nodes, currentNode, this.destinations);
 
-		const isWorking = this.dijkstra.iterate();
-
-		if (isWorking) return true;
-		else {
-			const n1 = this.destinations[this.currentIndex];
-			for (let j = this.currentIndex + 1; j < this.destinations.length; j++){
-				let n2 = this.destinations[j];
-				let path = [];
-				let current = n2;
-				while (current){
-					path.push(current);
-					current = current.prev;
+		if (!this.aStar.iterate()){
+			this.destinations.forEach(d => {
+				if (d != currentNode){
+					const path = [];
+					let current = d;
+					while (current){
+						path.push(current);
+						current = current.prev;
+					}
+					currentNode.paths[d.id] = {path, cost: d.totalCost};
 				}
-				n1.paths[n2.id] = n2.paths[n1.id] = {path, cost: n2.totalDist};
-			}
+			});
 
 			for (let i = 0; i < this.nodes.length; i++){
-				delete this.nodes[i].prev; // just so they aren't drawn
+				delete this.nodes[i].prev;
+				delete this.nodes[i].visited;
+				delete this.nodes[i].fScore;
+				delete this.nodes[i].totalCost;
 			}
 
 			this.currentIndex++;
-			this.dijkstra = false;
-			return true;
+			delete this.aStar;
 		}
+		return true;
 	}
 }
 

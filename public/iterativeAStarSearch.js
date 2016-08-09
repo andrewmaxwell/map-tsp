@@ -2,28 +2,34 @@ class IterativeAStarSearch {
 	constructor(nodes, start, destinations){
 
 		this.destinations = destinations;
+		this.remainingDestinations = this.destinations.length;
 
 		for (let i = 0; i < nodes.length; i++){
-			nodes[i].totalDist = Infinity;
-			nodes[i].visited = false;
-			delete nodes[i].prev;
+			nodes[i].totalCost = Infinity;
 		}
 
-		start.totalDist = 0;
-		this.queue = [start];
+		start.totalCost = 0;
 		this.updateFScore(start);
+		this.queue = [start];
 	}
 	updateFScore(node){
 		let minCostSquared = Infinity;
 		for (let i = 0; i < this.destinations.length; i++){
-			let dx = node.x - this.destinations[i].x;
-			let dy = node.y - this.destinations[i].y;
-			minCostSquared = Math.min(minCostSquared, dx * dx + dy * dy);
+			let d = this.destinations[i];
+			if (!d.visited){
+				let dx = node.x - d.x;
+				let dy = node.y - d.y;
+				minCostSquared = Math.min(minCostSquared, dx * dx + dy * dy);
+			}
 		}
-		node.fScore = node.totalDist + Math.sqrt(minCostSquared);
+		// if (minCostSquared == Infinity || isNaN(minCostSquared)){
+		// 	console.error(node, this.destinations, minCostSquared);
+		// 	throw 'NaN!';
+		// }
+		node.fScore = node.totalCost + Math.sqrt(minCostSquared);
 	}
 	iterate(){
-		if (!this.destinations.length || !this.queue.length) return false;
+		if (!this.remainingDestinations || !this.queue.length) return false;
 
 		let currentIndex = 0;
 		for (let i = 1; i < this.queue.length; i++){
@@ -36,10 +42,9 @@ class IterativeAStarSearch {
 		current.visited = true;
 		this.queue.splice(currentIndex, 1);
 
-		const destinationIndex = this.destinations.indexOf(current);
-		if (destinationIndex != -1){
-			if (this.destinations.length == 1) return false;
-			this.destinations.splice(destinationIndex, 1);
+		if (this.destinations.includes(current)){
+			this.remainingDestinations--;
+			if (!this.remainingDestinations) return false;
 			for (let j = 0; j < this.queue.length; j++){
 				this.updateFScore(this.queue[j]);
 			}
@@ -50,16 +55,16 @@ class IterativeAStarSearch {
 			let neighbor = current.neighbors[i].node;
 			if (neighbor.visited) continue;
 
-			let tentativeDist = current.totalDist + cost;
+			let tentativeCost = current.totalCost + cost;
 
 			if (!this.queue.includes(neighbor)){
 				this.queue.push(neighbor);
-			} else if (tentativeDist >= neighbor.totalDist){
+			} else if (tentativeCost >= neighbor.totalCost){
 				continue;
 			}
 
 			neighbor.prev = current;
-			neighbor.totalDist = tentativeDist;
+			neighbor.totalCost = tentativeCost;
 			this.updateFScore(neighbor);
 		}
 
