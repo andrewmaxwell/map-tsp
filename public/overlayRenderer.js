@@ -31,6 +31,23 @@ class MapRenderer {
 		}
 
 		if (this.selected){
+
+			// T.lineWidth = 0.5;
+			// T.strokeStyle = 'blue';
+			// T.beginPath();
+			// for (let i = 1; i < this.selected.length; i++){
+			// 	let s = this.selected[i];
+			// 	for (let j = 0; j < i; j++){
+			// 		let id = this.selected[j].id;
+			// 		let path = s.paths && s.paths[id] && s.paths[id].path;
+			// 		if (path){
+			// 			T.moveTo(path[0].x, path[0].y);
+			// 			path.forEach(n => T.lineTo(n.x, n.y));
+			// 		}
+			// 	}
+			// }
+			// T.stroke();
+
 			T.fillStyle = 'red';
 			T.beginPath();
 			this.selected.forEach(n => {
@@ -38,26 +55,11 @@ class MapRenderer {
 			});
 			T.fill();
 
-			T.lineWidth = 0.5;
-			T.strokeStyle = 'blue';
-			T.beginPath();
-			for (let i = 1; i < this.selected.length; i++){
-				let s = this.selected[i];
-				for (let j = 0; j < i; j++){
-					let id = this.selected[j].id;
-					let path = s.paths && s.paths[id] && s.paths[id].path;
-					if (path){
-						T.moveTo(path[0].x, path[0].y);
-						path.forEach(n => T.lineTo(n.x, n.y));
-					}
-				}
-			}
-			T.stroke();
 		}
 
 		let s = this.solver && this.solver.currentState;
 		if (s){
-			T.lineWidth = 3;
+			T.lineWidth = 2;
 			T.strokeStyle = 'red';
 			T.beginPath();
 			for (let i = 0; i < s.length; i++){

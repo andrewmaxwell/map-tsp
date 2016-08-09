@@ -9,7 +9,7 @@ class StatCanvas {
 	addGraph(opts){
 		const api = {
 			push: val => {
-				opts.min = Math.min(opts.min, val);
+				// opts.min = Math.min(opts.min, val);
 				opts.max = Math.max(opts.max, val);
 				opts.data.push(val);
 			}
@@ -20,7 +20,7 @@ class StatCanvas {
 	}
 	reset(){
 		this.graphs.forEach(type => {
-			type.min = Infinity;
+			// type.min = Infinity;
 			type.max = -Infinity;
 			type.data = [];
 		});
@@ -35,7 +35,8 @@ class StatCanvas {
 			T.fillStyle = T.strokeStyle = type.color;
 			T.beginPath();
 			for (let i = 0; i < type.data.length; i++){
-				T.lineTo(i / type.data.length * this.width, this.height - (type.data[i] - type.min) / (type.max - type.min) * this.height);
+				// T.lineTo(i / type.data.length * this.width, this.height - (type.data[i] - type.min) / (type.max - type.min) * this.height);
+				T.lineTo(i / type.data.length * this.width, this.height - type.data[i] / type.max * this.height);
 			}
 			T.stroke();
 

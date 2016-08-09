@@ -1,10 +1,12 @@
 console.clear();
 
 const screenWidth = window.top.innerWidth;
-const dijstraIterationsPerFrame = 500;
+const dijstraIterationsPerFrame = 100;
 const annealingIterationsPerFrame = 100;
 const initialNumPts = 30;
 const statCanvasHeight = 200;
+const initialTemperature = 1e5;
+const coolingFactor = 1 - 1 / 10000;
 
 const OverlayRenderer = require('./overlayRenderer');
 const SimulatedAnnealingSolver = require('./solver');
@@ -15,12 +17,11 @@ const utils = require('./utils');
 const mapData = require('json!./map.json');
 
 const solver = new SimulatedAnnealingSolver({
-	initialTemperature: 1e3,
-	coolingFactor: 1 - 1 / 10000,
-	getCost: path => path.reduce((cost, pt, i, path) => { // returns length of path
-		const n = (i + 1) % path.length;
-		return cost + pt.paths[path[n].id].cost;
-	}, 0),
+	initialTemperature,
+	coolingFactor,
+	getCost: path => path.reduce((sum, pt, i, path) =>  // returns length of path
+		sum + pt.paths[path[(i + 1) % path.length].id].cost
+	, 0),
 	generateNeighbor: utils.reverseRandomSlice
 });
 
@@ -47,7 +48,7 @@ const overlayRenderer = new OverlayRenderer(canvas, screenWidth, height);
 
 const statCanvas = new StatCanvas(document.getElementById('statCanvas'), screenWidth, statCanvasHeight);
 const annealingGraph = statCanvas.addGraph({color: 'red'});
-const temperatureGraph = statCanvas.addGraph({color: 'lime'});
+const temperatureGraph = statCanvas.addGraph({color: 'green'});
 
 drawMap(document.getElementById('mapCanvas'), screenWidth, height,
 	mapData.roads.map(road => road.map(id => nodes[id]))
@@ -68,7 +69,7 @@ const initSolve = () => {
 	if (selected.length > 1){
 		statCanvas.reset();
 		pathFinder = new PathFinder(nodes, selected);
-		delete solver.currentState;
+		delete solver.currentState; // just so it's not drawn
 		looping = true;
 		state = 0;
 	}

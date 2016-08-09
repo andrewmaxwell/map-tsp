@@ -1,4 +1,4 @@
-const IterativeDijkstra = require('./iterativeDijkstra');
+const IterativeAStarSearch = require('./iterativeAStarSearch');
 
 class IterativePathFinder {
 	constructor(nodes, destinations){
@@ -11,7 +11,7 @@ class IterativePathFinder {
 
 		if (this.currentIndex > this.destinations.length - 2) return false;
 
-		this.dijkstra = this.dijkstra || new IterativeDijkstra(
+		this.dijkstra = this.dijkstra || new IterativeAStarSearch(
 			this.nodes,
 			this.destinations[this.currentIndex],
 			this.destinations.slice(this.currentIndex + 1)
@@ -24,20 +24,18 @@ class IterativePathFinder {
 			const n1 = this.destinations[this.currentIndex];
 			for (let j = this.currentIndex + 1; j < this.destinations.length; j++){
 				let n2 = this.destinations[j];
-				let path = [n2];
+				let path = [];
 				let current = n2;
-				while (current.prev){
-					current = current.prev;
+				while (current){
 					path.push(current);
+					current = current.prev;
 				}
-				let cost = n2.totalDist;
-				n1.paths[n2.id] = {path, cost};
-				n2.paths[n1.id] = {path, cost};
+				n1.paths[n2.id] = n2.paths[n1.id] = {path, cost: n2.totalDist};
 			}
 
-			this.nodes.forEach(n => {
-				delete n.prev;
-			});
+			for (let i = 0; i < this.nodes.length; i++){
+				delete this.nodes[i].prev; // just so they aren't drawn
+			}
 
 			this.currentIndex++;
 			this.dijkstra = false;

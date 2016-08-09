@@ -29,7 +29,7 @@ class SimulatedAnnealingSolver {
 			this.maxCost = Math.max(this.maxCost, this.currentCost);
 		}
 		this.temperature *= this.coolingFactor;
-		return true;
+		return this.temperature > 1 - this.coolingFactor;
 	}
 }
 

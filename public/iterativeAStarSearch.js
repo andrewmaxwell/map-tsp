@@ -1,42 +1,32 @@
-class IterativeDijkstra {
+class IterativeAStarSearch {
 	constructor(nodes, start, destinations){
 
 		this.destinations = destinations;
 
-		nodes.forEach(n => {
-			n.totalDist = Infinity;
-			n.visited = false;
-			delete n.prev;
-		});
-
-		this.heuristic = node => {
-			let dx = node.x - this.destAverage.x;
-			let dy = node.y - this.destAverage.y;
-			return node.totalDist + Math.sqrt(dx * dx + dy * dy);
-		};
+		for (let i = 0; i < nodes.length; i++){
+			nodes[i].totalDist = Infinity;
+			nodes[i].visited = false;
+			delete nodes[i].prev;
+		}
 
 		start.totalDist = 0;
 		this.queue = [start];
-
-		this.updateFScores();
+		this.updateFScore(start);
 	}
-	updateFScores(){
-		const num = this.destinations.length;
-		let sumX = 0, sumY = 0;
-		for (let i = 0; i < num; i++){
-			sumX += this.destinations[i].x;
-			sumY += this.destinations[i].y;
+	updateFScore(node){
+		let minCostSquared = Infinity;
+		for (let i = 0; i < this.destinations.length; i++){
+			let dx = node.x - this.destinations[i].x;
+			let dy = node.y - this.destinations[i].y;
+			minCostSquared = Math.min(minCostSquared, dx * dx + dy * dy);
 		}
-		this.destAverage = {x: sumX / num, y: sumY / num};
-		this.queue.forEach(node => {
-			this.fScore = this.heuristic(node);
-		});
+		node.fScore = node.totalDist + Math.sqrt(minCostSquared);
 	}
 	iterate(){
 		if (!this.destinations.length || !this.queue.length) return false;
 
 		let currentIndex = 0;
-		for (let i = 0; i < this.queue.length; i++){
+		for (let i = 1; i < this.queue.length; i++){
 			if (this.queue[i].fScore < this.queue[currentIndex].fScore){
 				currentIndex = i;
 			}
@@ -50,7 +40,9 @@ class IterativeDijkstra {
 		if (destinationIndex != -1){
 			if (this.destinations.length == 1) return false;
 			this.destinations.splice(destinationIndex, 1);
-			this.updateFScores();
+			for (let j = 0; j < this.queue.length; j++){
+				this.updateFScore(this.queue[j]);
+			}
 		}
 
 		for (let i = 0; i < current.neighbors.length; i++){
@@ -68,11 +60,11 @@ class IterativeDijkstra {
 
 			neighbor.prev = current;
 			neighbor.totalDist = tentativeDist;
-			neighbor.fScore = this.heuristic(neighbor);
+			this.updateFScore(neighbor);
 		}
 
 		return true;
 	}
 };
 
-module.exports = IterativeDijkstra;
+module.exports = IterativeAStarSearch;
