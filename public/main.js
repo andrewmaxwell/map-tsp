@@ -1,12 +1,14 @@
 console.clear();
 
-const screenWidth = window.top.innerWidth;
-const pathFinderIterationsPerFrame = 100;
-const annealingIterationsPerFrame = 100;
-const initialNumPts = 10;
-const initialTemperature = 1e5;
-const coolingFactor = 1 - 1 / 1000;
+
 const statCanvasHeight = 100;
+const coolingFactor = -10;
+
+const params = {
+	searchSpeed: 1000,
+	annealSpeed: 100,
+	initialNumPts: 10
+};
 
 const OverlayRenderer = require('./overlayRenderer');
 const SimulatedAnnealingSolver = require('./solver');
@@ -17,93 +19,111 @@ const utils = require('./utils');
 const processNodes = require('./processNodes');
 const mapData = require('json!./map.json');
 
-window.top.mapData = mapData;
-
-const nodes = processNodes(mapData, screenWidth);
-
-const solver = new SimulatedAnnealingSolver({
-	initialTemperature,
-	coolingFactor,
-	generateNeighbor: utils.reverseRandomSlice,
-	getCost: path => path.reduce((sum, pt, i, path) =>  // returns length of path
-		sum + pt.paths[path[(i + 1) % path.length].id].cost
-	, 0)
-});
-
-const scaledMapHeight = Math.floor(mapData.height / mapData.width * screenWidth);
+const mapCanvas = document.getElementById('mapCanvas');
 const overlayCanvas = document.getElementById('mainCanvas');
-const overlayRenderer = new OverlayRenderer(overlayCanvas, screenWidth, scaledMapHeight);
-drawMap(document.getElementById('mapCanvas'), screenWidth, scaledMapHeight, mapData.roads);
+const statCanvas = document.getElementById('statCanvas');
 
-const stats = new StatGraph(document.getElementById('statCanvas'), screenWidth, statCanvasHeight);
+const nodes = processNodes(mapData);
+
+const stats = new StatGraph(statCanvas, window.innerWidth, statCanvasHeight);
 const annealingGraph = stats.addGraph({color: 'red'});
 const temperatureGraph = stats.addGraph({color: 'green'});
 
+let overlayRenderer, pathFinder, solver;
+let selected = [];
 
-let looping = false, pathFinder, selected = [], pathFinding = true;
+const IDLE = 0, STARTING = 1, PATHFINDING = 2, SOLVING = 3;
+let state = IDLE;
 
-overlayCanvas.onclick = e => {
-	const closest = utils.closestNode(nodes, e.offsetX, e.offsetY);
-	closest.selected = !closest.selected;
-	initSolve();
+const resize = window.onresize = () => {
+	const width = window.innerWidth;
+
+	nodes.forEach(node => {
+		node.screenX = node.x * width;
+		node.screenY = node.y * width;
+	});
+
+	const scaledMapHeight = Math.floor(mapData.height / mapData.width * width);
+
+	overlayRenderer = new OverlayRenderer(overlayCanvas, width, scaledMapHeight);
+	drawMap(mapCanvas, width, scaledMapHeight, mapData.roads);
+
+	statCanvas.width = width;
 };
 
-const initSolve = () => {
-	window.top.selected = selected = nodes.filter(n => n.selected);
-	overlayRenderer.draw({selected, nodes, solver});
-
-	pathFinding = true;
-	delete solver.currentState; // just so it's not drawn
-
-	pathFinder = new PathFinder(nodes, selected);
-	looping = true;
-	stats.reset();
-	overlayRenderer.draw();
+const setRandom = () => {
+	nodes.forEach(n => delete n.selected);
+	for (let i = 0; i < params.initialNumPts; i++){
+		nodes[Math.floor((i + 0.4) / params.initialNumPts * nodes.length)].selected = true;
+	}
+	state = STARTING;
 };
-
-for (let i = 0; i < initialNumPts; i++){
-	nodes[Math.floor((i + 0.5) / initialNumPts * nodes.length)].selected = true;
-}
-initSolve();
 
 const loop = () => {
 	requestAnimationFrame(loop);
-	if (looping){
+	if (state == IDLE) return;
 
-		if (pathFinding){
-			for (let i = 0; i < pathFinderIterationsPerFrame; i++){
-				if (!pathFinder.iterate()){
-					if (selected.length > 2){
-						solver.init(selected);
-						pathFinding = false;
-					} else looping = false;
-					break;
-				}
-			}
-		} else {
-			for (let i = 0; i < annealingIterationsPerFrame; i++){
-				if (!solver.iterate()){
-					looping = false;
-					break;
-				};
-			}
-			annealingGraph.push(solver.currentCost);
-			temperatureGraph.push(solver.temperature);
+	if (state == STARTING){
+
+		window.top.selected = selected = nodes.filter(n => n.selected);
+
+		pathFinder = new PathFinder(nodes, selected);
+		solver = new SimulatedAnnealingSolver({
+			initialTemperature: selected.length,
+			coolingFactor: 1 - Math.exp(coolingFactor),
+			generateNeighbor: utils.reverseRandomSlice,
+			getCost: path => path.reduce((sum, pt, i, path) =>  // returns length of path
+				sum + pt.paths[path[(i + 1) % path.length].id].cost
+			, 0)
+		});
+
+		stats.reset();
+		state = PATHFINDING;
+	}
+
+	for (let i = 0; state == PATHFINDING && i < params.searchSpeed; i++){
+		if (!pathFinder.iterate()){
+			if (selected.length > 2){
+				solver.init(selected);
+				state = SOLVING;
+			} else state = IDLE;
 		}
-
-		overlayRenderer.draw();
-		stats.draw();
 	}
+
+	if (state == SOLVING){
+		for (let i = 0; state == SOLVING && i < params.annealSpeed; i++){
+			if (!solver.iterate()) state = IDLE;
+		}
+		annealingGraph.push(solver.currentCost);
+		temperatureGraph.push(solver.temperature);
+	}
+
+	overlayRenderer.draw(nodes, selected, solver);
+	stats.draw();
 };
 
-loop();
+overlayCanvas.onclick = e => {
+	const x = e.offsetX / overlayCanvas.width;
+	const y = e.offsetY / overlayCanvas.width;
+	const closest = utils.closestNode(nodes, x, y);
+	closest.selected = !closest.selected;
+	state = STARTING;
+};
 
-window.onkeypress = e => {
-	if (e.code == 'Space'){
-		e.preventDefault();
+const gui = new window.dat.GUI();
+gui.add(params, 'searchSpeed', 1, 10000);
+gui.add(params, 'annealSpeed', 1, 1000);
+gui.add(params, 'initialNumPts', 0, 100).step(1).onChange(setRandom);
+gui.add({
+	'Clear All Points': () => {
 		nodes.forEach(n => delete n.selected);
-		initSolve();
+		state = STARTING;
 	}
-};
+}, 'Clear All Points');
 
-window.onerror = () => looping = false;
+window.onerror = () => state = IDLE;
+window.onresize = resize;
+
+resize();
+setRandom();
+loop();

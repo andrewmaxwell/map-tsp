@@ -16,16 +16,16 @@ module.exports = (canvas, width, height, roads) => {
 	const T = canvas.getContext('2d');
 
 	const drawRoad = road => {
-		T.moveTo(road.nodes[0].x, road.nodes[0].y);
-		road.nodes.forEach(node => T.lineTo(node.x, node.y));
+		T.moveTo(road.nodes[0].screenX, road.nodes[0].screenY);
+		road.nodes.forEach(node => T.lineTo(node.screenX, node.screenY));
 	};
 
 	if (roads[0].type){
 		roads.forEach(road => {
 			T.beginPath();
 			T.strokeStyle = colors[road.type];
-			T.moveTo(road.nodes[0].x, road.nodes[0].y);
-			road.nodes.forEach(node => T.lineTo(node.x, node.y));
+			T.moveTo(road.nodes[0].screenX, road.nodes[0].screenY);
+			road.nodes.forEach(node => T.lineTo(node.screenX, node.screenY));
 			T.stroke();
 		});
 	} else {
@@ -37,12 +37,12 @@ module.exports = (canvas, width, height, roads) => {
 
 		// T.strokeStyle = '#F00';
 		// T.beginPath();
-		// roads.filter(r => r.oneway && r.nodes[0].x < r.nodes[r.nodes.length - 1].x).forEach(drawRoad);
+		// roads.filter(r => r.oneway && r.nodes[0].screenX < r.nodes[r.nodes.length - 1].screenX).forEach(drawRoad);
 		// T.stroke();
 		//
 		// T.strokeStyle = '#00F';
 		// T.beginPath();
-		// roads.filter(r => r.oneway && r.nodes[0].x >= r.nodes[r.nodes.length - 1].x).forEach(drawRoad);
+		// roads.filter(r => r.oneway && r.nodes[0].screenX >= r.nodes[r.nodes.length - 1].screenX).forEach(drawRoad);
 		// T.stroke();
 	}
 

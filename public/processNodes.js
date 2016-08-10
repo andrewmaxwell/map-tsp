@@ -1,11 +1,11 @@
 const utils = require('./utils');
 
-module.exports = (mapData, screenWidth) => {
-	
+module.exports = mapData => {
+
 	const nodes = mapData.nodes.map((node, i) => ({
 		id: i,
-		x: node[0] / mapData.width * screenWidth,
-		y: node[1] / mapData.width * screenWidth,
+		x: node[0] / mapData.width,
+		y: node[1] / mapData.width,
 		neighbors: []
 	}));
 

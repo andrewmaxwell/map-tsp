@@ -2,8 +2,8 @@ class StatGraph {
 	constructor(canvas, width, height){
 		this.canvas = canvas;
 		this.context = this.canvas.getContext('2d');
-		this.canvas.width = this.width = width;
-		this.canvas.height = this.height = height;
+		this.canvas.width = width;
+		this.canvas.height = height;
 		this.graphs = [];
 	}
 	addGraph(opts){
@@ -29,25 +29,26 @@ class StatGraph {
 	}
 	draw(){
 		const T = this.context;
+		const W = this.canvas.width;
+		const H = this.canvas.height;
 
-		T.clearRect(0, 0, this.width, this.height);
+		T.clearRect(0, 0, W, H);
 		T.font = 'monospace';
 
 		this.graphs.filter(type => type.data.length).forEach((type, i) => {
 			T.fillStyle = T.strokeStyle = type.color;
 			T.beginPath();
 			for (let i = 0; i < type.data.length; i++){
-				// T.lineTo(i / type.data.length * this.width, this.height - (type.data[i] - type.min) / (type.max - type.min) * this.height);
-				T.lineTo(i / type.data.length * this.width, this.height - type.data[i] / type.max * this.height);
+				T.lineTo(i / type.data.length * W, H - type.data[i] / type.max * H);
 			}
 			T.stroke();
 
-			T.fillText(type.data[type.data.length - 1], 0, this.height - 12 - 10 * i);
+			T.fillText(type.data[type.data.length - 1], 0, H - 12 - 10 * i);
 			// if (type.strokeStyle) T.stroke();
 		});
 
 		T.fillStyle = 'white';
-		T.fillText(this.graphs[0].data.length, 0, this.height - 2);
+		T.fillText(this.graphs[0].data.length, 0, H - 2);
 	}
 }
 
