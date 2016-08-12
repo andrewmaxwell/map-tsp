@@ -1,9 +1,7 @@
 class StatGraph {
-	constructor(canvas, width, height){
+	constructor(canvas){
 		this.canvas = canvas;
 		this.context = this.canvas.getContext('2d');
-		this.canvas.width = width;
-		this.canvas.height = height;
 		this.graphs = [];
 	}
 	addGraph(opts){
@@ -25,6 +23,11 @@ class StatGraph {
 			type.max = -Infinity;
 			type.data = [];
 		});
+		this.draw();
+	}
+	resize(width, height){
+		this.canvas.width = width;
+		this.canvas.height = height;
 		this.draw();
 	}
 	draw(){

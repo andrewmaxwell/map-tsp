@@ -6,6 +6,9 @@ class IterativeAStarSearch {
 
 		for (let i = 0; i < nodes.length; i++){
 			nodes[i].totalCost = Infinity;
+			nodes[i].fScore = Infinity;
+			nodes[i].visited = false;
+			nodes[i].prev = false;
 		}
 
 		start.totalCost = 0;
@@ -22,10 +25,6 @@ class IterativeAStarSearch {
 				minCostSquared = Math.min(minCostSquared, dx * dx + dy * dy);
 			}
 		}
-		// if (minCostSquared == Infinity || isNaN(minCostSquared)){
-		// 	console.error(node, this.destinations, minCostSquared);
-		// 	throw 'NaN!';
-		// }
 		node.fScore = node.totalCost + Math.sqrt(minCostSquared);
 	}
 	iterate(){

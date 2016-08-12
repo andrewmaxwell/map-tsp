@@ -20,8 +20,20 @@ module.exports = mapData => {
 			let cost = utils.distance(a, b) / road.speed;
 			a.neighbors.push({cost, node: b});
 			if (!road.oneway) b.neighbors.push({cost, node: a});
+			// b.neighbors.push({cost, node: a});
 		}
 	});
+
+	// var queue = [nodes[Math.floor(Math.random() * nodes.length)]];
+	// console.log(nodes);
+	// while (queue.length){
+	// 	var current = queue.pop();
+	// 	current.attached = true;
+	// 	current.neighbors.forEach(n => {
+	// 		if (!n.node.attached) queue.push(n.node);
+	// 	});
+	// }
+	// console.log('unattached', nodes.filter(n => !n.attached));
 
 	return nodes;
 };
