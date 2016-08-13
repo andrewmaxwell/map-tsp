@@ -3,11 +3,11 @@ Here's my Traveling Salesman UI with Hazelwood/Florissant loaded in (my part of 
 Demo: https://andrewmaxwell.github.io/map-tsp/
 Repo: https://github.com/andrewmaxwell/map-tsp
 
-Click anywhere to place a destination. As soon as you place more than one destination, it will find the shortest path between each pair of destinations using a dynamically calculated variant of the A* search algorithm. After that, if there are more than two points it will find the shortest path that visits each point in a circle using the simulated annealing algorithm.
+Click anywhere to place a destination. As soon as you place more than one destination, it will find the shortest path between each pair of destinations using a dynamically calculated variant of the A* search algorithm. After that, if there are more than two points it will find the shortest path that visits each destination in a loop using the simulated annealing algorithm.
 
 * The green lines are a visualization of the search algorithm.
 * The blue lines are shortest paths between pairs of points.
-* The red line eventually becomes the shortest path that visits every point and returns to the beginning.
+* The red line eventually becomes the shortest path that visits every destination in a loop.
 
 There is a mini-GUI in the upper right:
 * searchSpeed: how many path searching iterations per frame. Make it slow if you like to watch, or fast if you have a lot of points and are tired of watching.
