@@ -47,7 +47,6 @@ class StatGraph {
 			T.stroke();
 
 			T.fillText(type.data[type.data.length - 1], 0, H - 12 - 10 * i);
-			// if (type.strokeStyle) T.stroke();
 		});
 
 		T.fillStyle = 'white';

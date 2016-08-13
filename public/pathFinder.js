@@ -37,6 +37,9 @@ class IterativePathFinder {
 						path.push(current);
 						current = current.prev;
 					}
+					if (destination.totalCost == Infinity){
+						console.log('Infinity!', currentNode);
+					}
 					currentNode.paths[destination.id] = {path, cost: destination.totalCost};
 				}
 			});

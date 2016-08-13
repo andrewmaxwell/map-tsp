@@ -1,13 +1,12 @@
 console.clear();
 
-
 const statCanvasHeight = 100;
 
 const params = {
-	searchSpeed: 300,
+	searchSpeed: 1000,
 	annealSpeed: 100,
 	coolingFactor: 300,
-	initialNumPts: 0
+	randomPoints: 0
 };
 
 const OverlayRenderer = require('./overlayRenderer');
@@ -26,7 +25,7 @@ const statCanvas = document.getElementById('statCanvas');
 const nodes = processNodes(mapData);
 
 const IDLE = 0, STARTING = 1, PATHFINDING = 2, SOLVING = 3;
-let state = IDLE, selected = [];
+let state = IDLE, selected = [];//[nodes[19086]];
 
 const mapRenderer = new MapRenderer(mapCanvas, {roads: mapData.roads, selected});
 const overlayRenderer = new OverlayRenderer(overlayCanvas);
@@ -66,15 +65,6 @@ const resize = window.onresize = () => {
 	mapRenderer.resize(width, scaledMapHeight);
 	overlayRenderer.resize(width, scaledMapHeight);
 	stats.resize(width, statCanvasHeight);
-};
-
-const setRandom = () => {
-	selected.length = 0;
-	for (let i = 0; i < params.initialNumPts; i++){
-		let n = nodes[Math.floor((i + 0.4) / params.initialNumPts * nodes.length)];
-		if (!selected.includes(n)) selected.push(n);
-	}
-	state = STARTING;
 };
 
 const loop = () => {
@@ -124,11 +114,29 @@ overlayCanvas.onclick = e => {
 	state = STARTING;
 };
 
+overlayCanvas.onmousemove = e => {
+	const x = e.offsetX / overlayCanvas.width;
+	const y = e.offsetY / overlayCanvas.width;
+	overlayRenderer.bind({
+		nodeAtCursor: utils.closestNode(nodes, x, y)
+	});
+	overlayRenderer.draw();
+};
+
+const setRandom = () => {
+	selected.length = 0;
+	for (let i = 0; i < params.randomPoints; i++){
+		let n = nodes[Math.floor(Math.random() * nodes.length)];
+		if (!selected.includes(n)) selected.push(n);
+	}
+	state = STARTING;
+};
+
 const gui = new window.dat.GUI();
 gui.add(params, 'searchSpeed', 1, 10000);
 gui.add(params, 'annealSpeed', 1, 1000);
 gui.add(params, 'coolingFactor', 10, 1000);
-gui.add(params, 'initialNumPts', 0, 100).step(1).onChange(setRandom);
+gui.add(params, 'randomPoints', 0, 100).step(1).onChange(setRandom);
 gui.add({
 	'Clear All Points': () => {
 		selected.length = 0;
