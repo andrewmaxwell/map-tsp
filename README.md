@@ -3,7 +3,7 @@ Here's my Traveling Salesman UI with Hazelwood/Florissant loaded in (my part of 
 Demo: https://andrewmaxwell.github.io/map-tsp/
 Repo: https://github.com/andrewmaxwell/map-tsp
 
-Click anywhere to place a destination. As soon as you place more than one destination, it will find the shortest path between each pair of destinations. After that, if there are more than two points it will find the shortest path that visits each point in a circle.
+Click anywhere to place a destination. As soon as you place more than one destination, it will find the shortest path between each pair of destinations using a dynamically calculated variant of the A* search algorithm. After that, if there are more than two points it will find the shortest path that visits each point in a circle using the simulated annealing algorithm.
 
 * The green lines are a visualization of the search algorithm.
 * The blue lines are shortest paths between pairs of points.
@@ -14,6 +14,10 @@ There is a mini-GUI in the upper right:
 * annealSpeed: how many annealing iterations per frame.
 * coolingFactor: A multiplier for how slowly to narrow in on the shortest path. Higher is slower but theoretically it might get a better solution.
 * randomPoints: generate some random destinations, crank it up and see what happens. You'll want to crank up searchSpeed too or you'll be sitting there forever.
+
+When searching for the shortest path, two variables are graphed at the bottom:
+* The red line is the length of the current solution being considered.
+* The green line is the temperature of the simulated annealing algorithm.
 
 The data is from Mapzen: https://mapzen.com/data/metro-extracts/metro/saint-louis_missouri/
 
