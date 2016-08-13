@@ -7,7 +7,7 @@ Click anywhere to place a destination. As soon as you place more than one destin
 
 * The green lines are a visualization of the search algorithm.
 * The blue lines are shortest paths between pairs of points.
-* The red line is the shortest path that visits every point and returns to the beginning.
+* The red line eventually becomes the shortest path that visits every point and returns to the beginning.
 
 There is a mini-GUI in the upper right:
 * searchSpeed: how many path searching iterations per frame. Make it slow if you like to watch, or fast if you have a lot of points and are tired of watching.
