@@ -25,7 +25,7 @@ However, that is too much data for the UI. The roads layer from the IMPOSM GEOJS
 
 Mapzen does not provide useful data regarding one-way streets or speed limits. Speed limits are estimated based on road type and one-way restrictions are ignored, unfortunately.
 
-To install and run:
+To install and run the UI:
 ```
 npm install webpack webpack-dev-server -g
 npm install
@@ -35,3 +35,9 @@ npm run dev
 Then go to http://localhost:8080/webpack-dev-server/
 
 The webpack dev server automatically refreshes when it detects a file change in the public folder.
+
+To run the data processor (only necessary if you've changed something inside processData.js):
+```
+cd dataProcessor/
+node processData.js
+```

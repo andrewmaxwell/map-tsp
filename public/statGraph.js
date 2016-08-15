@@ -5,21 +5,15 @@ class StatGraph {
 		this.graphs = [];
 	}
 	addGraph(opts){
-		const api = {
-			push: val => {
-				// opts.min = Math.min(opts.min, val);
-				opts.max = Math.max(opts.max, val);
-				opts.data.push(val);
-			}
-		};
-
 		this.graphs.push(opts);
 		this.reset();
-		return api;
+		return val => {
+			opts.max = Math.max(opts.max, val);
+			opts.data.push(val);
+		};
 	}
 	reset(){
 		this.graphs.forEach(type => {
-			// type.min = Infinity;
 			type.max = -Infinity;
 			type.data = [];
 		});

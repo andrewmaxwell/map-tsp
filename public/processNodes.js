@@ -35,16 +35,5 @@ module.exports = mapData => {
 		}
 	});
 
-	// var queue = [nodes[Math.floor(Math.random() * nodes.length)]];
-	// console.log(nodes);
-	// while (queue.length){
-	// 	var current = queue.pop();
-	// 	current.attached = true;
-	// 	current.neighbors.forEach(n => {
-	// 		if (!n.node.attached) queue.push(n.node);
-	// 	});
-	// }
-	// console.log('unattached', nodes.filter(n => !n.attached));
-
 	return nodes;
 };

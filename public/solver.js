@@ -1,12 +1,7 @@
 class SimulatedAnnealingSolver {
 	constructor(opts){
-
-		/* opts should contain these properties:
-		- getCost: a function that takes a state and returns a number
-		- generateNeighbor: a function that takes a state and returns a new state
-		*/
-
-		Object.keys(opts).forEach(key => this[key] = opts[key]);
+		this.getCost = opts.getCost; // a function that takes a state and returns a number
+		this.generateNeighbor = opts.generateNeighbor; // a function that takes a state and returns a new state
 	}
 	init(initialState, initialTemperature, coolingFactor){
 		this.temperature = initialTemperature;

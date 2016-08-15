@@ -92,8 +92,8 @@ const loop = () => {
 		for (let i = 0; state == SOLVING && i < params.annealSpeed; i++){
 			if (!solver.iterate()) state = IDLE;
 		}
-		annealingGraph.push(solver.currentCost);
-		temperatureGraph.push(solver.temperature);
+		annealingGraph(solver.currentCost);
+		temperatureGraph(solver.temperature);
 		overlayRenderer.bind({solveState: solver.currentState});
 	}
 

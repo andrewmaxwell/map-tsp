@@ -13,6 +13,7 @@ class IterativePathFinder {
 	iterate(){
 
 		const currentNode = this.destinations[this.currentIndex];
+
 		if (!currentNode){
 			for (let i = 0; i < this.nodes.length; i++){
 				delete this.nodes[i].totalCost;
@@ -48,6 +49,7 @@ class IterativePathFinder {
 			this.aStar = false;
 			this.onPathFound();
 		}
+		
 		return true;
 	}
 }
