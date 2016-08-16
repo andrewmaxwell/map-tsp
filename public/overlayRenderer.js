@@ -1,3 +1,5 @@
+const colors = ['red', 'cyan', 'lime', 'yellow', 'magenta'];
+
 class MapRenderer {
 	constructor(canvas){
 		this.canvas = canvas;
@@ -36,20 +38,31 @@ class MapRenderer {
 		}
 
 		if (solveState){
+			let colorIndex = 0;
 			T.lineWidth = 2;
-			T.strokeStyle = 'red';
-			T.beginPath();
-			for (let i = 0; i < solveState.length; i++){
-				let next = solveState[i].paths[solveState[(i + 1) % solveState.length].id];
-				if (next){
-					let path = next.path;
-					T.moveTo(path[0].screenX, path[0].screenY);
-					for (let j = 1; j < path.length; j++){
-						T.lineTo(path[j].screenX, path[j].screenY);
+			T.globalAlpha = 0.5;
+			for (let i = 0; i < solveState.paths.length; i++){
+				let loop = solveState.paths[i];
+				if (loop.length > 1){
+
+					T.strokeStyle = colors[colorIndex % colors.length];
+					T.beginPath();
+					for (let j = 0; j < loop.length; j++){
+
+						let next = loop[j].paths[loop[(j + 1) % loop.length].id];
+						if (next){
+							let path = next.path;
+							T.moveTo(path[0].screenX, path[0].screenY);
+							for (let k = 1; k < path.length; k++){
+								T.lineTo(path[k].screenX, path[k].screenY);
+							}
+						}
 					}
+					T.stroke();
+					colorIndex++;
 				}
 			}
-			T.stroke();
+			T.globalAlpha = 1;
 		}
 
 		if (cursor){

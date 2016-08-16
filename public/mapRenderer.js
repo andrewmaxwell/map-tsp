@@ -99,7 +99,7 @@ class MapRenderer {
 
 		if (selected){
 			T.lineWidth = 0.5;
-			T.strokeStyle = 'blue';
+			T.strokeStyle = 'black';
 			T.beginPath();
 			selected.forEach(s => {
 				selected.forEach(t => {

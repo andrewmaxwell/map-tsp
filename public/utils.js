@@ -3,12 +3,12 @@ Array.prototype.unique = function(){
 };
 
 module.exports = {
-	distance: (a, b) => {
+	distance(a, b){
 		const dx = a.x - b.x;
 		const dy = a.y - b.y;
 		return Math.sqrt(dx * dx + dy * dy);
 	},
-	boundingBox: coords => {
+	boundingBox(coords){
 		let min = {x: Infinity, y: Infinity};
 		let max = {x: -Infinity, y: -Infinity};
 		coords.forEach(coord => {
@@ -19,7 +19,7 @@ module.exports = {
 		});
 		return {min, max};
 	},
-	closestNode: (nodes, x, y) => {
+	closestNode(nodes, x, y){
 		let closestNode;
 		let minDist = Infinity;
 		nodes.forEach(node => {
@@ -33,7 +33,7 @@ module.exports = {
 		});
 		return closestNode;
 	},
-	reverseRandomSlice: arr => {
+	reverseRandomSlice(arr){
 		var newArr = arr.slice(0);
 		var n = Math.floor(Math.random() * arr.length);
 		var m = Math.floor(Math.random() * arr.length);
@@ -46,5 +46,28 @@ module.exports = {
 			end--;
 		}
 		return newArr;
+	},
+	rand(min, max){
+		if (max === undefined){
+			max = min;
+			min = 0;
+		}
+		return min + Math.floor(Math.random() * (max - min));
+	},
+	average(nums){
+		let total = 0;
+		for (let i = 0; i < nums.length; i++){
+			total += nums[i];
+		}
+		return total / nums.length;
+	},
+	standardDeviation(nums){
+		const average = this.average(nums);
+		let total = 0;
+		for (let i = 0; i < nums.length; i++){
+			let diff = nums[i] - average;
+			total += diff * diff;
+		}
+		return Math.sqrt(total / nums.length);
 	}
 };

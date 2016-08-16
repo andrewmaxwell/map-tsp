@@ -22,5 +22,6 @@ module.exports = {
 	      }
 	    }
 		]
-	}
+	},
+	devtool: 'cheap-module-inline-source-map'
 };
