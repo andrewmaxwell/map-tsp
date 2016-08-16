@@ -101,19 +101,19 @@ class MapRenderer {
 			T.lineWidth = 0.5;
 			T.strokeStyle = 'blue';
 			T.beginPath();
-			selected.forEach(s => {
-				selected.forEach(t => {
-					let path = s.paths && s.paths[t.id] && s.paths[t.id].path;
+			for (let i = 1; i < selected.length; i++){
+				for (let j = 0; j < i; j++){
+					let path = selected[i].paths && selected[i].paths[selected[j].id] && selected[i].paths[selected[j].id].path;
 					if (path) drawLine(path);
-				});
-			});
+				}
+			}
 			T.stroke();
 
 			T.fillStyle = 'red';
 			T.beginPath();
-			selected.forEach(n => {
-				T.rect(n.screenX - 3, n.screenY - 3, 6, 6);
-			});
+			for (let i = 0; i < selected.length; i++){
+				T.rect(selected[i].screenX - 3, selected[i].screenY - 3, 6, 6);
+			}
 			T.fill();
 		}
 
