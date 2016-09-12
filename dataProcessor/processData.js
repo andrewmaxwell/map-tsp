@@ -110,7 +110,7 @@ readJSON(jsonLocation).then(data => {
 	});
 
 	// save the result in the public folder
-	return save('../public/map.json', JSON.stringify({
+	return save('../js/map.json', JSON.stringify({
 		width,
 		height: Math.round((maxCoord.y - minCoord.y) * mult),
 		nodes: nodes.map(n => n.join(',')).join(';'),

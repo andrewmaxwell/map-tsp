@@ -21,7 +21,7 @@ When searching for the shortest path, two variables are graphed at the bottom:
 
 The data is from Mapzen: https://mapzen.com/data/metro-extracts/metro/saint-louis_missouri/
 
-However, that is too much data for the UI. The roads layer from the IMPOSM GEOJSON files is 93mb, so I wrote a script to trim it down to just what I want. The data file and script to process it are in the dataProcessor directory. Run processData.js to read the geojson file and output the trimmed down version to public/map.json. There are variables at the top of processData.js you can mess with to get a different map if you want.
+However, that is too much data for the UI. The roads layer from the IMPOSM GEOJSON files is 93mb, so I wrote a script to trim it down to just what I want. The data file and script to process it are in the dataProcessor directory. Run processData.js to read the geojson file and output the trimmed down version to js/map.json. There are variables at the top of processData.js you can mess with to get a different map if you want.
 
 Mapzen does not provide useful data regarding one-way streets or speed limits. Speed limits are estimated based on road type and one-way restrictions are ignored, unfortunately.
 
