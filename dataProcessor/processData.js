@@ -3,7 +3,8 @@ const {closestNode, readJSON, save} = require('./utils');
 const jsonLocation = './saint-louis_missouri_roads.geojson';
 
 // boundingBox is a pair of coordinates makes a rectangle, this script only returns what is inside
-const boundingBox = [[38.839975, -90.433025], [38.763151, -90.245806]]; // Hazelwood/Florissant, change it to be whatever you want, but don't make it too huge or you might crash the browser
+// const boundingBox = [[38.839975, -90.433025], [38.763151, -90.245806]]; // Hazelwood/Florissant, change it to be whatever you want, but don't make it too huge or you might crash the browser
+const boundingBox = [[38.716250, -90.499303], [38.613549, -90.333462]];
 
 // these are estimated speeds for the different types of roads
 // if a road type isn't here, it won't be included in the output
